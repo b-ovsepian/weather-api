@@ -292,8 +292,22 @@ refs.localBtn.addEventListener('click', event => {
       });
     })
     .catch(err => {
-      setTimeout(() => {
-        showNoticeLoc();
-      }, 5000);
+      const API_key = 'dff7afe788c44b9e90e7b4fd64d0bb1b';
+      const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_key}`;
+      const fetchGeo = async function () {
+        const response = await fetch(url);
+        return response.json();
+      };
+      fetchGeo().then(response => {
+        fetchByLoc.lat = Number.parseFloat(response.latitude);
+        fetchByLoc.lon = Number.parseFloat(response.longitude);
+        fetchByLoc.fetchWeatherByLoc().then(data => {
+          if (data.status === 200 || data.cod === 200) {
+            addCityToFavourites(data);
+          } else {
+            showNoticeLoc();
+          }
+        });
+      });
     });
 });
