@@ -6,4 +6,5 @@ export default {
   weatherBox: document.querySelector('#weather-box'),
   cityList: document.querySelector('#cityList'),
   menu: document.querySelector('#menu'),
+  localBtn: document.querySelector('.js-local'),
 };

@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Weather</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="container">
       <button type="button" id="menu" class="menu-button">
-        <svg width="32" height="32">
+        <!-- <svg width="32" height="32">
           <use href="./images/sprite.svg#icon-menu"></use>
-        </svg>
+        </svg> -->
+        <span class="material-icons md-32 md-light"> menu </span>
       </button>
       <div class="search-form-box js-form-box">
         <form class="searchWeatherForm" id="weatherForm">
@@ -22,13 +27,21 @@
             placeholder="Найти местоположение"
             name="query"
           />
-          <svg width="32" height="32" class="search-form__icon">
+          <span class="material-icons md-32 md-light search-form__icon">
+            search
+          </span>
+          <!-- <svg width="32" height="32" class="search-form__icon">
             <use href="./images/sprite.svg#icon-search"></use>
-          </svg>
+          </svg> -->
           <!-- <button type="reset">Отмена</button>
-          <button type="button">Текущее местоположение</button>
           <button type="submit">Favorite</button> -->
         </form>
+        <button type="button" class="location-btn js-local">
+          <span class="material-icons md-16 md-light location-btn__icon">
+            near_me
+          </span>
+          Текущее
+        </button>
         <ul class="cityList" id="cityList"></ul>
       </div>
       <div class="weather-box" id="weather-box"></div>
@@ -36,27 +49,31 @@
       <header class="header">
         <nav class="site-nav">
           <div class="button-link">
-            <svg width="32" height="32">
+            <span class="material-icons md-32 md-light"> today </span>
+            <!-- <svg width="32" height="32">
               <use href="./images/sprite.svg#icon-today"></use>
-            </svg>
+            </svg> -->
             <p class="button-link__title">Сегодня</p>
           </div>
           <div class="button-link">
-            <svg width="32" height="32">
+            <span class="material-icons md-32 md-light"> watch_later </span>
+            <!-- <svg width="32" height="32">
               <use href="./images/sprite.svg#icon-clock"></use>
-            </svg>
+            </svg> -->
             <p class="button-link__title">Почасовой</p>
           </div>
           <div class="button-link">
-            <svg width="32" height="32">
+            <span class="material-icons md-32 md-light"> date_range </span>
+            <!-- <svg width="32" height="32">
               <use href="./images/sprite.svg#icon-calendar"></use>
-            </svg>
+            </svg> -->
             <p class="button-link__title">Ежедневно</p>
           </div>
           <div class="button-link">
-            <svg width="32" height="32">
+            <span class="material-icons md-32 md-light"> explore </span>
+            <!-- <svg width="32" height="32">
               <use href="./images/sprite.svg#icon-explore"></use>
-            </svg>
+            </svg> -->
             <p class="button-link__title">Радар</p>
           </div>
         </nav>

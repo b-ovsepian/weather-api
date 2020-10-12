@@ -1,11 +1,13 @@
 import refs from './refs.js';
 import fetchApi from './fetchApi.js';
+import fetchByLoc from './fetchByLoc.js';
 import itemTpl from '../templates/item.hbs';
 import cityTpl from '../templates/city.hbs';
 
 import '@pnotify/core/dist/BrightTheme.css';
 import '@pnotify/core/dist/Material.css';
 import '@pnotify/core/dist/PNotify.css';
+
 import { alert, notice, info, success, error } from '@pnotify/core';
 
 refs.form.addEventListener('submit', event => {
@@ -257,3 +259,41 @@ function showNoticeCity() {
     delay: 3000,
   });
 }
+function showNoticeLoc() {
+  return notice({
+    text: 'Нет доступа к местоположению',
+    animateSpeed: 'fast',
+    delay: 3000,
+  });
+}
+
+function getCurrentPosition() {
+  const options = {
+    timeout: 5000,
+  };
+  return new Promise((res, rej) => {
+    navigator.geolocation.getCurrentPosition(res, rej, options);
+  });
+}
+
+refs.localBtn.addEventListener('click', event => {
+  getCurrentPosition()
+    .then(location => {
+      const lat = location.coords.latitude;
+      const lon = location.coords.longitude;
+      fetchByLoc.lat = lat;
+      fetchByLoc.lon = lon;
+      fetchByLoc.fetchWeatherByLoc().then(data => {
+        if (data.status === 200 || data.cod === 200) {
+          addCityToFavourites(data);
+        } else {
+          showNoticeLoc();
+        }
+      });
+    })
+    .catch(err => {
+      setTimeout(() => {
+        showNoticeLoc();
+      }, 5000);
+    });
+});

@@ -81,7 +81,7 @@ body {
   display: block;
 }
 .weather-box {
-  padding-top: 80px;
+  padding-top: 60px;
   padding-bottom: 80px;
 }
 .weather-box.is-open {
@@ -199,4 +199,30 @@ p {
 }
 .searchWeatherForm {
   position: relative;
+
+  margin-bottom: 15px;
+}
+.material-icons.md-light {
+  color: rgba(255, 255, 255, 1);
+}
+.material-icons.md-32 {
+  font-size: 32px;
+}
+.material-icons.md-16 {
+  font-size: 24px;
+}
+.location-btn {
+  display: flex;
+  align-items: center;
+
+  color: white;
+  background-color: rgb(46, 46, 46);
+
+  width: 100%;
+  height: 40px;
+
+  border: none;
+}
+.location-btn__icon {
+  margin-right: 10px;
 }

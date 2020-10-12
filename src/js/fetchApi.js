@@ -9,6 +9,7 @@ export default {
     this._city = newCity;
   },
   async fetchWeather() {
+    // api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${this._city}&units=metric&lang=ru&appid=${API_key}`;
     const response = await fetch(url);
     return response.json();
