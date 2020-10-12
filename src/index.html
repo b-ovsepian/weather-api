@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Weather</title>
+  </head>
+  <body>
+    <div class="container">
+      <button type="button" id="menu" class="menu-button">
+        <svg width="32" height="32">
+          <use href="./images/sprite.svg#icon-menu"></use>
+        </svg>
+      </button>
+      <div class="search-form-box js-form-box">
+        <form class="searchWeatherForm" id="weatherForm">
+          <input
+            class="searchWeatherInput"
+            id="weatherInput"
+            type="text"
+            placeholder="Найти местоположение"
+            name="query"
+          />
+          <svg width="32" height="32" class="search-form__icon">
+            <use href="./images/sprite.svg#icon-search"></use>
+          </svg>
+          <!-- <button type="reset">Отмена</button>
+          <button type="button">Текущее местоположение</button>
+          <button type="submit">Favorite</button> -->
+        </form>
+        <ul class="cityList" id="cityList"></ul>
+      </div>
+      <div class="weather-box" id="weather-box"></div>
+
+      <header class="header">
+        <nav class="site-nav">
+          <div class="button-link">
+            <svg width="32" height="32">
+              <use href="./images/sprite.svg#icon-today"></use>
+            </svg>
+            <p class="button-link__title">Сегодня</p>
+          </div>
+          <div class="button-link">
+            <svg width="32" height="32">
+              <use href="./images/sprite.svg#icon-clock"></use>
+            </svg>
+            <p class="button-link__title">Почасовой</p>
+          </div>
+          <div class="button-link">
+            <svg width="32" height="32">
+              <use href="./images/sprite.svg#icon-calendar"></use>
+            </svg>
+            <p class="button-link__title">Ежедневно</p>
+          </div>
+          <div class="button-link">
+            <svg width="32" height="32">
+              <use href="./images/sprite.svg#icon-explore"></use>
+            </svg>
+            <p class="button-link__title">Радар</p>
+          </div>
+        </nav>
+      </header>
+    </div>
+  </body>
+</html>

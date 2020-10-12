@@ -1,0 +1,21 @@
+{{#each this}}
+<h1><span class="hidden">Город:</span>{{name}}</h1>
+<h2 class="js-td">{{dt}}</h2>
+<div class="current-weather">
+    <img class="current-weather__icon" src="https://openweathermap.org/img/w/{{weather.0.icon}}.png"
+        alt="{{weather.main}}" width="100" height="100">
+    <p><span class="hidden">Температура:</span> <span class="current-weather__temp js-temp">{{main.temp}}</span></p>
+</div>
+<p class="current-weather__max-temp">Макс. <span class="js-temp">{{main.temp_max}}</span>, мин. <span
+        class="js-temp">{{main.temp_min}}</span></p>
+<p class="current-weather__desc">{{weather.0.description}}</p>
+<p class="weather-add"><span>Температура RealFeel:</span><span class="js-temp rightside">{{main.feels_like}}</span></p>
+<p class="weather-add"><span>Влажность:</span> <span class="rightside">{{main.humidity}}%</span></p>
+<p class="weather-add"><span>Давление:</span><span class="rightside">{{main.pressure}} мм.рт.ст</span></p>
+<p class="weather-add"><span>Средняя cкорость ветра:</span><span class="rightside"><span
+            class="js-wind">{{wind.deg}}</span> {{wind.speed}}м/сек</span>
+</p>
+<p class="weather-add"><span>Средняя облачность:</span><span class="rightside">{{clouds.all}}%</span></p>
+<p class="weather-add"><span>Восход солнца:</span><span class="js-time rightside">{{sys.sunrise}}</span></p>
+<p class="weather-add"><span>Заход солнца:</span><span class="js-time rightside">{{sys.sunset}}</span></p>
+{{/each}}
