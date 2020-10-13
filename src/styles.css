@@ -40,6 +40,9 @@ p {
 .material-icons.md-light {
   color: rgba(255, 255, 255, 1);
 }
+.material-icons.md-dark {
+  color: rgb(41, 41, 41);
+}
 .material-icons.md-32 {
   font-size: 32px;
 }
@@ -289,9 +292,63 @@ p {
   display: flex;
   align-items: center;
 }
+/* Daily-box */
 .daily-box {
   display: none;
+
+  padding-top: 80px;
+  padding-bottom: 100px;
 }
 .daily-box.is-open {
   display: block;
+}
+.daily-list {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: -20px;
+  padding: 0;
+}
+.daily-list > .item {
+  margin: 20px;
+  width: calc((100% - 160px) / 4);
+  min-height: 250px;
+
+  text-align: center;
+  background-color: white;
+  color: rgb(41, 41, 41);
+  border-radius: 10px;
+  font-size: 16px;
+  padding: 15px 5px;
+}
+.daily-weather {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 15px;
+
+  width: 44px;
+  height: 44px;
+  opacity: 0.8;
+
+  background-color: rgb(41, 41, 41);
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.daily-dt {
+  font-size: 24px;
+  font-weight: 700;
+}
+.daily-day,
+.daily-night,
+.daily-rain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.daily-temp,
+.daily-pop {
+  margin-left: 5px;
 }

@@ -3,13 +3,14 @@ import fetchApi from './fetchApi.js';
 import itemTpl from '../templates/item.hbs';
 import cityTpl from '../templates/city.hbs';
 import hourlyTpl from '../templates/hourly.hbs';
+import dailyTpl from '../templates/daily.hbs';
 
 import '@pnotify/core/dist/BrightTheme.css';
 import '@pnotify/core/dist/Material.css';
 import '@pnotify/core/dist/PNotify.css';
 
 import { alert, notice, info, success, error } from '@pnotify/core';
-
+let state = 1;
 //Показываем погоду
 if (localStorage.getItem('currentCity')) {
   chooseShowCity();
@@ -30,6 +31,7 @@ refs.form.addEventListener('submit', event => {
   });
 });
 refs.menu.addEventListener('click', () => {
+  console.log(state);
   toggleMenu();
   showFavourites();
   if (!refs.formBox.classList.contains('is-open') && refs.cityList.innerHTML) {
@@ -87,13 +89,39 @@ refs.localBtn.addEventListener('click', event => {
     });
 });
 refs.todayBtn.addEventListener('click', event => {
+  state = 1;
   if (!refs.formBox.classList.contains('is-open')) {
     refs.weatherBox.classList.add('is-open');
     refs.hourlyBox.classList.remove('is-open');
+    refs.dailyBox.classList.remove('is-open');
   }
 });
-refs.hourlyBtn.addEventListener('click', event => {
-  if (!refs.formBox.classList.contains('is-open')) {
+refs.hourlyBtn.addEventListener('click', fetchHourly);
+refs.dailyBtn.addEventListener('click', fetchDaily);
+
+// fetch daily
+function fetchDaily() {
+  state = 3;
+  const localCity = localStorage.getItem('currentCity');
+  if (!refs.formBox.classList.contains('is-open') && localCity !== null) {
+    const localCity = JSON.parse(localStorage.getItem('currentCity'));
+    fetchApi.lat = localCity.coord.lat;
+    fetchApi.lon = localCity.coord.lon;
+    fetchApi
+      .fetchWeatherHourly()
+      .then(({ daily }) => daily)
+      .then(res => renderDaily(res));
+
+    refs.weatherBox.classList.remove('is-open');
+    refs.hourlyBox.classList.remove('is-open');
+    refs.dailyBox.classList.add('is-open');
+  } else showNoticeAddCity();
+}
+// fetch hourly
+function fetchHourly() {
+  state = 2;
+  const localCity = localStorage.getItem('currentCity');
+  if (!refs.formBox.classList.contains('is-open') && localCity !== null) {
     const localCity = JSON.parse(localStorage.getItem('currentCity'));
     fetchApi.lat = localCity.coord.lat;
     fetchApi.lon = localCity.coord.lon;
@@ -111,9 +139,9 @@ refs.hourlyBtn.addEventListener('click', event => {
 
     refs.weatherBox.classList.remove('is-open');
     refs.hourlyBox.classList.add('is-open');
-  }
-});
-
+    refs.dailyBox.classList.remove('is-open');
+  } else showNoticeAddCity();
+}
 function render(data) {
   refs.weatherBox.innerHTML = '';
   const templateItem = itemTpl(data);
@@ -125,40 +153,38 @@ function render(data) {
     month: 'long',
     day: 'numeric',
   };
-  const localeUk = toDay.toLocaleString('Ru-ru', options);
+  const localeUk = toDay.toLocaleString('Ua-ua', options);
   dateRef.textContent = `${localeUk}`;
   const tempArray = document.querySelectorAll('.js-temp');
-  tempArray.forEach(
-    (item, index) => (item.textContent = roundTemp(tempArray)[index] + '°'),
-  );
+  tempArray.forEach(item => (item.textContent = roundTemp(item) + '°'));
   const timeMsArr = document.querySelectorAll('.js-time');
-  timeMsArr.forEach(
-    (item, index) => (item.textContent = convertTime(timeMsArr)[index]),
-  );
+  timeMsArr.forEach(item => (item.textContent = convertTime(item)));
   const windDir = document.querySelector('.js-wind');
   windDir.textContent = convertDir(windDir);
 }
 // round temp to int
-function roundTemp(tempArray) {
-  const roundTempsArr = [];
-  tempArray.forEach(({ textContent }) => {
-    roundTempsArr.push(Math.round(Number.parseFloat(textContent)));
-  });
-  return roundTempsArr;
+function roundTemp(temp) {
+  return Math.round(Number.parseFloat(temp.textContent));
 }
 // convert Unix to 2-dig
-function convertTime(timeMsArr) {
-  const convertedTimeArr = [];
-  timeMsArr.forEach(({ textContent }) => {
-    const time = new Date(Number.parseInt(textContent) * 1000);
-    const options = {
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    const convertedTime = time.toLocaleTimeString('Ru-ru', options);
-    convertedTimeArr.push(convertedTime);
-  });
-  return convertedTimeArr;
+function convertTime(timeMs) {
+  const time = new Date(Number.parseInt(timeMs.textContent) * 1000);
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit',
+  };
+  const convertedTime = time.toLocaleTimeString('Ua-ua', options);
+  return convertedTime;
+}
+// convert Unix to Day
+function convertTimeToDay(timeMs) {
+  const time = new Date(Number.parseInt(timeMs.textContent) * 1000);
+  const options = {
+    weekday: 'short',
+    day: 'numeric',
+  };
+  const convertedTime = time.toLocaleString('Ua-ua', options);
+  return convertedTime;
 }
 // Convert wind direction to words
 function convertDir({ textContent }) {
@@ -199,6 +225,10 @@ function convertDir({ textContent }) {
     default:
       return degree;
   }
+}
+// rounds pop to int
+function roundPop(pop) {
+  return Number.parseInt(pop.textContent * 100);
 }
 // adds city to favorite list
 function addCityToFavourites(object) {
@@ -273,17 +303,26 @@ function chooseShowCity() {
 // shows choosen category
 function toggleMenu() {
   refs.formBox.classList.toggle('is-open');
-  const state = refs.weatherBox.classList.contains('is-open') ? 1 : 2;
+
   if (refs.formBox.classList.contains('is-open')) {
     refs.weatherBox.classList.remove('is-open');
     refs.hourlyBox.classList.remove('is-open');
+    refs.dailyBox.classList.remove('is-open');
   } else {
     if (state === 1) {
       refs.weatherBox.classList.add('is-open');
       refs.hourlyBox.classList.remove('is-open');
-    } else {
+      refs.dailyBox.classList.remove('is-open');
+    } else if (state === 2) {
       refs.weatherBox.classList.remove('is-open');
       refs.hourlyBox.classList.add('is-open');
+      refs.dailyBox.classList.remove('is-open');
+      fetchHourly();
+    } else if (state === 3) {
+      refs.weatherBox.classList.remove('is-open');
+      refs.hourlyBox.classList.remove('is-open');
+      refs.dailyBox.classList.add('is-open');
+      fetchHourly();
     }
   }
 }
@@ -337,6 +376,14 @@ function showNoticeCity() {
     delay: 3000,
   });
 }
+// shows notice to add City
+function showNoticeAddCity() {
+  return notice({
+    text: 'Пожалуйста, выберите город',
+    animateSpeed: 'fast',
+    delay: 3000,
+  });
+}
 // shows notice cannot use your geo
 function showNoticeLoc() {
   return alert({
@@ -360,41 +407,22 @@ function renderHourly(data) {
   const templateItem = hourlyTpl(data);
   refs.hourlyList.insertAdjacentHTML('beforeend', templateItem);
   const timeMsArr = refs.hourlyList.querySelectorAll('.js-time');
-  timeMsArr.forEach(
-    (item, index) => (item.textContent = convertTime(timeMsArr)[index]),
-  );
+  timeMsArr.forEach(item => (item.textContent = convertTime(item)));
   const roundPopArr = refs.hourlyList.querySelectorAll('.js-pop');
-  roundPopArr.forEach(
-    (item, index) => (item.textContent = roundPop(roundPopArr)[index]),
-  );
+  roundPopArr.forEach(item => (item.textContent = roundPop(item) + '%'));
   const roundTempArr = refs.hourlyList.querySelectorAll('.js-temp');
-  roundTempArr.forEach(
-    (item, index) => (item.textContent = roundTemp(roundTempArr)[index] + '°'),
-  );
+  roundTempArr.forEach(item => (item.textContent = roundTemp(item) + '°'));
 }
-// rounds pop to int
-function roundPop(popArr) {
-  const roundPopsArr = [];
-  popArr.forEach(({ textContent }) => {
-    roundPopsArr.push(Number.parseFloat(textContent) * 100);
-  });
-  return roundPopsArr;
-}
+
 // renders daily data to dailyBox
 function renderDaily(data) {
-  refs.hourlyList.innerHTML = '';
-  const templateItem = hourlyTpl(data);
-  refs.hourlyList.insertAdjacentHTML('beforeend', templateItem);
-  const timeMsArr = refs.hourlyList.querySelectorAll('.js-time');
-  timeMsArr.forEach(
-    (item, index) => (item.textContent = convertTime(timeMsArr)[index]),
-  );
-  const roundPopArr = refs.hourlyList.querySelectorAll('.js-pop');
-  roundPopArr.forEach(
-    (item, index) => (item.textContent = roundPop(roundPopArr)[index]),
-  );
-  const roundTempArr = refs.hourlyList.querySelectorAll('.js-temp');
-  roundTempArr.forEach(
-    (item, index) => (item.textContent = roundTemp(roundTempArr)[index] + '°'),
-  );
+  refs.dailyList.innerHTML = '';
+  const templateItem = dailyTpl(data);
+  refs.dailyList.insertAdjacentHTML('beforeend', templateItem);
+  const roundPopArr = refs.dailyList.querySelectorAll('.daily-pop');
+  roundPopArr.forEach(item => (item.textContent = roundPop(item) + '%'));
+  const unixToDayArr = refs.dailyList.querySelectorAll('.daily-dt');
+  unixToDayArr.forEach(item => (item.textContent = convertTimeToDay(item)));
+  const roundTempArr = refs.dailyList.querySelectorAll('.daily-temp');
+  roundTempArr.forEach(item => (item.textContent = roundTemp(item) + '°'));
 }

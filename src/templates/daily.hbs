@@ -1,0 +1,18 @@
+{{#each this}}
+<li class="item">
+    <p class="daily-dt">{{dt}}</p>
+    <div class="daily-weather">
+        <img class="daily-icon" src="https://openweathermap.org/img/w/{{weather.0.icon}}.png" alt="{{weather.main}}"
+            width="32" height="32">
+    </div>
+    <p class="daily-day">
+        <span class="material-icons md-dark md-16">brightness_5</span>
+        <span class="daily-temp">{{temp.day}}</span></p>
+    <p class="daily-night">
+        <span class="material-icons md-dark md-16">brightness_4</span>
+        <span class="daily-temp">{{temp.night}}</span></p>
+    <p class="daily-rain">
+        <span class="material-icons md-16 md-dark">opacity</span>
+        <span class="daily-pop">{{pop}}</span></p>
+</li>
+{{/each}}
