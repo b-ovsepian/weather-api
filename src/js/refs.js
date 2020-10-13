@@ -7,4 +7,11 @@ export default {
   cityList: document.querySelector('#cityList'),
   menu: document.querySelector('#menu'),
   localBtn: document.querySelector('.js-local'),
+  hourlyBox: document.querySelector('#hourly-box'),
+  hourlyList: document.querySelector('.js-hourly'),
+  todayBtn: document.querySelector('[data-name=today]'),
+  hourlyBtn: document.querySelector('[data-name=hourly]'),
+  dailyBtn: document.querySelector('[data-name=daily]'),
+  dailyBox: document.querySelector('#daily-box'),
+  dailyList: document.querySelector('.js-daily'),
 };

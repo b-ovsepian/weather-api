@@ -1,14 +1,19 @@
 import refs from './refs.js';
 import fetchApi from './fetchApi.js';
-import fetchByLoc from './fetchByLoc.js';
 import itemTpl from '../templates/item.hbs';
 import cityTpl from '../templates/city.hbs';
+import hourlyTpl from '../templates/hourly.hbs';
 
 import '@pnotify/core/dist/BrightTheme.css';
 import '@pnotify/core/dist/Material.css';
 import '@pnotify/core/dist/PNotify.css';
 
 import { alert, notice, info, success, error } from '@pnotify/core';
+
+//Показываем погоду
+if (localStorage.getItem('currentCity')) {
+  chooseShowCity();
+} else WeatherBoxIsEmpty();
 
 refs.form.addEventListener('submit', event => {
   event.preventDefault();
@@ -23,6 +28,90 @@ refs.form.addEventListener('submit', event => {
       refs.form.reset();
     }
   });
+});
+refs.menu.addEventListener('click', () => {
+  toggleMenu();
+  showFavourites();
+  if (!refs.formBox.classList.contains('is-open') && refs.cityList.innerHTML) {
+    chooseShowCity();
+  }
+});
+refs.cityList.addEventListener('click', event => {
+  event.preventDefault();
+  if (event.target.nodeName === 'A') {
+    const index = Number.parseInt(event.target.dataset.index) + 1;
+    const currentCityLocal = localStorage.getItem(`favorite${index}`);
+    localStorage.setItem('currentCity', currentCityLocal);
+    chooseShowCity();
+    toggleMenu();
+  }
+
+  if (event.target.nodeName === 'BUTTON') {
+    const key = event.target.dataset.index;
+    deleteFavoriteCity(key);
+  }
+});
+refs.localBtn.addEventListener('click', event => {
+  getCurrentPosition()
+    .then(location => {
+      const lat = location.coords.latitude;
+      const lon = location.coords.longitude;
+      fetchApi.lat = lat;
+      fetchApi.lon = lon;
+      fetchApi.fetchWeatherByLoc().then(data => {
+        if (data.status === 200 || data.cod === 200) {
+          addCityToFavourites(data);
+        } else {
+          showNoticeLoc();
+        }
+      });
+    })
+    .catch(err => {
+      const API_key = 'dff7afe788c44b9e90e7b4fd64d0bb1b';
+      const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_key}`;
+      const fetchGeo = async function () {
+        const response = await fetch(url);
+        return response.json();
+      };
+      fetchGeo().then(response => {
+        fetchApi.lat = Number.parseFloat(response.latitude);
+        fetchApi.lon = Number.parseFloat(response.longitude);
+        fetchApi.fetchWeatherByLoc().then(data => {
+          if (data.status === 200 || data.cod === 200) {
+            addCityToFavourites(data);
+          } else {
+            showNoticeLoc();
+          }
+        });
+      });
+    });
+});
+refs.todayBtn.addEventListener('click', event => {
+  if (!refs.formBox.classList.contains('is-open')) {
+    refs.weatherBox.classList.add('is-open');
+    refs.hourlyBox.classList.remove('is-open');
+  }
+});
+refs.hourlyBtn.addEventListener('click', event => {
+  if (!refs.formBox.classList.contains('is-open')) {
+    const localCity = JSON.parse(localStorage.getItem('currentCity'));
+    fetchApi.lat = localCity.coord.lat;
+    fetchApi.lon = localCity.coord.lon;
+    fetchApi
+      .fetchWeatherHourly()
+      .then(({ hourly }) => hourly)
+      .then(data =>
+        data.filter((item, index) => {
+          if (index < 24) {
+            return item;
+          }
+        }),
+      )
+      .then(res => renderHourly(res));
+
+    refs.weatherBox.classList.remove('is-open');
+    refs.hourlyBox.classList.add('is-open');
+  }
 });
 
 function render(data) {
@@ -49,7 +138,7 @@ function render(data) {
   const windDir = document.querySelector('.js-wind');
   windDir.textContent = convertDir(windDir);
 }
-
+// round temp to int
 function roundTemp(tempArray) {
   const roundTempsArr = [];
   tempArray.forEach(({ textContent }) => {
@@ -57,7 +146,7 @@ function roundTemp(tempArray) {
   });
   return roundTempsArr;
 }
-
+// convert Unix to 2-dig
 function convertTime(timeMsArr) {
   const convertedTimeArr = [];
   timeMsArr.forEach(({ textContent }) => {
@@ -71,7 +160,7 @@ function convertTime(timeMsArr) {
   });
   return convertedTimeArr;
 }
-
+// Convert wind direction to words
 function convertDir({ textContent }) {
   const degree = Number.parseInt(textContent);
   switch (true) {
@@ -111,7 +200,7 @@ function convertDir({ textContent }) {
       return degree;
   }
 }
-
+// adds city to favorite list
 function addCityToFavourites(object) {
   let index;
   const countFavorites = localStorage.getItem('countFavorites');
@@ -149,6 +238,7 @@ function addCityToFavourites(object) {
     showFavourites();
   }
 }
+//  shows favorite list
 function showFavourites() {
   refs.cityList.innerHTML = '';
   const countFavorites = localStorage.getItem('countFavorites');
@@ -164,30 +254,7 @@ function showFavourites() {
     refs.cityList.insertAdjacentHTML('beforeend', markup);
   }
 }
-refs.menu.addEventListener('click', () => {
-  toggleMenu();
-  showFavourites();
-  if (!refs.formBox.classList.contains('is-open') && refs.cityList.innerHTML) {
-    console.log('load');
-    chooseShowCity();
-  }
-});
-refs.cityList.addEventListener('click', event => {
-  event.preventDefault();
-  if (event.target.nodeName === 'A') {
-    const index = Number.parseInt(event.target.dataset.index) + 1;
-    const currentCityLocal = localStorage.getItem(`favorite${index}`);
-    localStorage.setItem('currentCity', currentCityLocal);
-    chooseShowCity();
-    toggleMenu();
-  }
-
-  if (event.target.nodeName === 'BUTTON') {
-    const key = event.target.dataset.index;
-    deleteFavoriteCity(key);
-  }
-});
-
+// shows choosen city
 function chooseShowCity() {
   const currentCityLocal = localStorage.getItem('currentCity');
   const localCity = JSON.parse(currentCityLocal);
@@ -203,16 +270,24 @@ function chooseShowCity() {
     localStorage.setItem('currentCity', currentCityLocal);
   }
 }
-
+// shows choosen category
 function toggleMenu() {
   refs.formBox.classList.toggle('is-open');
-  refs.weatherBox.classList.toggle('is-open');
+  const state = refs.weatherBox.classList.contains('is-open') ? 1 : 2;
+  if (refs.formBox.classList.contains('is-open')) {
+    refs.weatherBox.classList.remove('is-open');
+    refs.hourlyBox.classList.remove('is-open');
+  } else {
+    if (state === 1) {
+      refs.weatherBox.classList.add('is-open');
+      refs.hourlyBox.classList.remove('is-open');
+    } else {
+      refs.weatherBox.classList.remove('is-open');
+      refs.hourlyBox.classList.add('is-open');
+    }
+  }
 }
-//Показываем погоду
-if (localStorage.getItem('currentCity')) {
-  chooseShowCity();
-} else WeatherBoxIsEmpty();
-
+// cleans weatherBox
 function WeatherBoxIsEmpty() {
   refs.weatherBox.innerHTML = '';
   const h2 = document.createElement('h2');
@@ -221,6 +296,7 @@ function WeatherBoxIsEmpty() {
   h2.textContent = 'Выберите город для отслеживания погоды';
   refs.weatherBox.insertAdjacentElement('beforeend', h2);
 }
+// deletes city from favorite list
 function deleteFavoriteCity(key) {
   const index = Number.parseInt(key);
   const countFavorites = localStorage.getItem('countFavorites');
@@ -245,6 +321,7 @@ function deleteFavoriteCity(key) {
     }
   }
 }
+// shows alert
 function showAlert() {
   return alert({
     text: 'Не найден город, попробуйте еще',
@@ -252,6 +329,7 @@ function showAlert() {
     delay: 3000,
   });
 }
+// shows notice favorite list has choosen city
 function showNoticeCity() {
   return notice({
     text: 'Город уже добавлен',
@@ -259,14 +337,15 @@ function showNoticeCity() {
     delay: 3000,
   });
 }
+// shows notice cannot use your geo
 function showNoticeLoc() {
-  return notice({
+  return alert({
     text: 'Нет доступа к местоположению',
     animateSpeed: 'fast',
     delay: 3000,
   });
 }
-
+// takes your geo from web
 function getCurrentPosition() {
   const options = {
     timeout: 5000,
@@ -275,39 +354,47 @@ function getCurrentPosition() {
     navigator.geolocation.getCurrentPosition(res, rej, options);
   });
 }
-
-refs.localBtn.addEventListener('click', event => {
-  getCurrentPosition()
-    .then(location => {
-      const lat = location.coords.latitude;
-      const lon = location.coords.longitude;
-      fetchByLoc.lat = lat;
-      fetchByLoc.lon = lon;
-      fetchByLoc.fetchWeatherByLoc().then(data => {
-        if (data.status === 200 || data.cod === 200) {
-          addCityToFavourites(data);
-        } else {
-          showNoticeLoc();
-        }
-      });
-    })
-    .catch(err => {
-      const API_key = 'dff7afe788c44b9e90e7b4fd64d0bb1b';
-      const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${API_key}`;
-      const fetchGeo = async function () {
-        const response = await fetch(url);
-        return response.json();
-      };
-      fetchGeo().then(response => {
-        fetchByLoc.lat = Number.parseFloat(response.latitude);
-        fetchByLoc.lon = Number.parseFloat(response.longitude);
-        fetchByLoc.fetchWeatherByLoc().then(data => {
-          if (data.status === 200 || data.cod === 200) {
-            addCityToFavourites(data);
-          } else {
-            showNoticeLoc();
-          }
-        });
-      });
-    });
-});
+// renders hourly data to hourlybox
+function renderHourly(data) {
+  refs.hourlyList.innerHTML = '';
+  const templateItem = hourlyTpl(data);
+  refs.hourlyList.insertAdjacentHTML('beforeend', templateItem);
+  const timeMsArr = refs.hourlyList.querySelectorAll('.js-time');
+  timeMsArr.forEach(
+    (item, index) => (item.textContent = convertTime(timeMsArr)[index]),
+  );
+  const roundPopArr = refs.hourlyList.querySelectorAll('.js-pop');
+  roundPopArr.forEach(
+    (item, index) => (item.textContent = roundPop(roundPopArr)[index]),
+  );
+  const roundTempArr = refs.hourlyList.querySelectorAll('.js-temp');
+  roundTempArr.forEach(
+    (item, index) => (item.textContent = roundTemp(roundTempArr)[index] + '°'),
+  );
+}
+// rounds pop to int
+function roundPop(popArr) {
+  const roundPopsArr = [];
+  popArr.forEach(({ textContent }) => {
+    roundPopsArr.push(Number.parseFloat(textContent) * 100);
+  });
+  return roundPopsArr;
+}
+// renders daily data to dailyBox
+function renderDaily(data) {
+  refs.hourlyList.innerHTML = '';
+  const templateItem = hourlyTpl(data);
+  refs.hourlyList.insertAdjacentHTML('beforeend', templateItem);
+  const timeMsArr = refs.hourlyList.querySelectorAll('.js-time');
+  timeMsArr.forEach(
+    (item, index) => (item.textContent = convertTime(timeMsArr)[index]),
+  );
+  const roundPopArr = refs.hourlyList.querySelectorAll('.js-pop');
+  roundPopArr.forEach(
+    (item, index) => (item.textContent = roundPop(roundPopArr)[index]),
+  );
+  const roundTempArr = refs.hourlyList.querySelectorAll('.js-temp');
+  roundTempArr.forEach(
+    (item, index) => (item.textContent = roundTemp(roundTempArr)[index] + '°'),
+  );
+}

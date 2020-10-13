@@ -44,36 +44,29 @@
         </button>
         <ul class="cityList" id="cityList"></ul>
       </div>
-      <div class="weather-box" id="weather-box"></div>
-
+      <div class="weather-box is-open" id="weather-box"></div>
+      <div class="hourly-box" id="hourly-box">
+        <ul class="hourly-list js-hourly"></ul>
+      </div>
+      <div class="daily-box" id="daily-box">
+        <ul class="daily-list js-daily"></ul>
+      </div>
       <header class="header">
         <nav class="site-nav">
-          <div class="button-link">
+          <div class="button-link" data-name="today">
             <span class="material-icons md-32 md-light"> today </span>
-            <!-- <svg width="32" height="32">
-              <use href="./images/sprite.svg#icon-today"></use>
-            </svg> -->
             <p class="button-link__title">Сегодня</p>
           </div>
-          <div class="button-link">
+          <div class="button-link" data-name="hourly">
             <span class="material-icons md-32 md-light"> watch_later </span>
-            <!-- <svg width="32" height="32">
-              <use href="./images/sprite.svg#icon-clock"></use>
-            </svg> -->
             <p class="button-link__title">Почасовой</p>
           </div>
-          <div class="button-link">
+          <div class="button-link" data-name="daily">
             <span class="material-icons md-32 md-light"> date_range </span>
-            <!-- <svg width="32" height="32">
-              <use href="./images/sprite.svg#icon-calendar"></use>
-            </svg> -->
             <p class="button-link__title">Ежедневно</p>
           </div>
-          <div class="button-link">
+          <div class="button-link" data-name="radar">
             <span class="material-icons md-32 md-light"> explore </span>
-            <!-- <svg width="32" height="32">
-              <use href="./images/sprite.svg#icon-explore"></use>
-            </svg> -->
             <p class="button-link__title">Радар</p>
           </div>
         </nav>

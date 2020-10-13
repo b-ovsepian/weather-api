@@ -1,0 +1,13 @@
+{{#each this}}
+<li class="item">
+    <p class="js-time hourly-time">{{dt}}</p>
+    <img class="hourly-icon" src="https://openweathermap.org/img/w/{{weather.0.icon}}.png" alt="{{weather.main}}"
+        width="32" height="32">
+    <p class="js-temp hourly-temp">{{temp}}</p>
+    <p class="">RealFeel <span class="js-temp">{{feels_like}}</span></p>
+    <div class="horly-pop-box">
+        <span class="material-icons md-16 md-light">opacity</span>
+        <span class="js-pop">{{pop}}</span><span> %</span>
+    </div>
+</li>
+{{/each}}
